@@ -1,5 +1,5 @@
 /*
- * include/asm-arm/arch-at91/irqs.h
+ * arch/arm/mach-at91/include/mach/irqs.h
  *
  *  Copyright (C) 2004 SAN People
  *
@@ -41,5 +41,8 @@
  * We make provision for 5 banks of GPIO.
  */
 #define	NR_IRQS		(NR_AIC_IRQS + (5 * 32))
+
+/* FIQ is AIC source 0. */
+#define FIQ_START AT91_ID_FIQ
 
 #endif
