@@ -1,0 +1,32 @@
+#!/bin/sh
+
+tag=$1
+if [ "$tag" = "" ]
+then
+	echo 1>&2 usage $0 '<version-tag>'
+	exit 1
+fi
+
+rm -rf tmp
+mkdir tmp
+cp -p System.map vmlinux tmp
+cp -p .config tmp/config
+cp -p arch/arm/boot/Image tmp
+cp -p arch/arm/boot/zImage tmp
+make modules_install INSTALL_MOD_PATH=tmp
+rm -rf tmp/lib/modules/2.6.21-rt1/build
+rm -rf tmp/lib/modules/2.6.21-rt1/source
+cd tmp
+name=eddy-os-2.1.0.1-$tag.bin
+../tool/mkimage \
+	-A arm \
+	-T kernel \
+	-C none \
+	-a 0x20008000 \
+	-e 20008000 \
+	-n $name \
+	-d zImage \
+	/tftpboot/$name
+cd ..
+rm -rf tmp
+echo /tftpboot/$name created
