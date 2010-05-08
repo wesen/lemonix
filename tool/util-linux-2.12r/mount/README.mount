@@ -1,0 +1,10 @@
+mount/umount for Linux 0.97.3 and later.
+Authors:
+Doug Quale <quale@saavik.cs.wisc.edu>,
+H.J. Lu <hlu@eecs.wsu.edu>,
+Rick Sladkey <jrs@world.std.com>,
+Stephen Tweedie <sct@dcs.ed.ac.uk>.
+
+Presently maintained by Andries Brouwer <aeb@cwi.nl>.
+Ftp site: ftp.win.tue.nl:/pub/linux/utils/util-linux
+

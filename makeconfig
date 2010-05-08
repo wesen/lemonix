@@ -1,0 +1,92 @@
+##
+##	Top Level Makefile for OS7100 Project
+##
+
+## Check environments
+include Make.check
+
+all:
+	@echo "Top level makefile for '$(TARGET_BOARD)' project."
+	@echo "Following make targets are available:"
+	@echo ""
+	@echo "	distclean: clean up everything except distributed files"
+	@echo "	config: configuration"
+	@echo "	build: build target images"
+	@echo "	install: install the built image to the target root"
+	@echo "	clean: clean up for rebuilding"
+	@echo ""
+	@echo "	batch: do {distclean config build install} at a time"
+
+batch: touch distclean config build install
+
+distclean:
+	make -C $(BOOTST_DIR) clean
+	make -C $(BOOTLR_DIR) distclean
+	make -C $(OS_DIR) mrproper
+	make -C $(APP_DIR) distclean
+#	make -C $(WEB_DIR) distclean
+	make -C $(RAMDISK_DIR) distclean
+
+config:
+	make -C $(BOOTST_DIR) MEMORY=flash at91sam9260ek_defconfig
+	make -C $(BOOTLR_DIR) at91sam9260ek_config
+	cp $(OS_DIR)/config.$(TARGET_BOARD) $(OS_DIR)/.config 
+	make -C $(OS_DIR) ARCH=arm MACH=at91 oldconfig
+	make -C $(APP_DIR) config
+#	make -C $(CGI_DIR) config
+	make -C $(RAMDISK_DIR) config
+ 
+
+build:
+	make -C $(BOOTST_DIR)
+	make -C $(BOOTLR_DIR) u-boot.img
+	make -C $(OS_DIR) ARCH=arm MACH=at91 uImage
+	make -C $(APP_DIR) all
+#	make -C $(CGI_DIR) all
+	make -C $(RAMDISK_DIR) build
+
+clean:
+	make -C $(BOOTST_DIR) clean
+	make -C $(BOOTLR_DIR) clean
+	make -C $(OS_DIR) clean
+	make -C $(APP_DIR) clean
+#	make -C $(CGI_DIR) clean
+	make -C $(RAMDISK_DIR) clean
+	rm -rf $(FIRMWARE_DIR)/*
+
+install:
+	test -f $(BOOTST_DIR)/binaries/at91sam9260ek-flashboot-2.3.bin \
+		&& /bin/cp $(BOOTST_DIR)/binaries/at91sam9260ek-flashboot-2.3.bin \
+			$(FIRMWARE_DIR)/$(TARGET_BOARD)-bootstrap-$(BOOT_VERSION).img
+	test -f $(BOOTLR_DIR)/u-boot.img \
+	&& /bin/cp $(BOOTLR_DIR)/u-boot.img \
+			$(FIRMWARE_DIR)/$(TARGET_BOARD)-bootldr-$(BOOT_VERSION).img
+	test -f $(OS_DIR)/arch/arm/boot/uImage \
+		&& $(SUDO_CMD) /bin/cp $(OS_DIR)/arch/arm/boot/uImage \
+			$(FIRMWARE_DIR)/$(TARGET_BOARD)-os-$(OS_VERSION).img 
+	make -C $(APP_DIR) install 
+#	make -C $(WEB_DIR) install
+	make -C $(RAMDISK_DIR) install
+
+	@echo""
+	@echo""
+	@echo""
+	@echo "PKG_VERSION="$(PKG_VERSION)
+	@echo "PKG_REL_DATE="`date +%Y.%m.%d`
+
+##
+## Sometimes, following message appears on build host system.
+##	warning:  Clock skew detected.  Your build may be incomplete.
+##
+## To prevent incomplete build, do "make touch" on top most directory.
+##
+touch: .touch
+.touch:
+	-/bin/touch *
+	-/usr/bin/find $(BOOTST_DIR) -type f -exec /bin/touch {} \;
+	-/usr/bin/find $(BOOTLR_DIR) -type f -exec /bin/touch {} \;
+	-/usr/bin/find $(OS_DIR) -type f -exec /bin/touch {} \;
+	-/usr/bin/find $(APP_DIR) -type f -exec /bin/touch {} \;
+	-/usr/bin/find $(WEB_DIR) -type f -exec /bin/touch {} \;
+	# -/usr/bin/find . -type f -exec /bin/touch {} \;
+	touch .touch

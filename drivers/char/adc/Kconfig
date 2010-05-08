@@ -1,0 +1,19 @@
+#
+# ADC subsystem configuration
+#
+
+menu "ADC support"
+
+config EDDY_ADC
+	tristate "Eddy ADC support"
+	---help---
+	4-channel ADC
+	10-bit 312K samples/sec. Successive Approximation Register ADC
+
+config EDDY_ADC_DEBUG
+	bool "Eddy ADC debugging messages"
+	depends on EDDY_ADC
+	help
+	ADC_Debugging
+
+endmenu
