@@ -189,7 +189,7 @@ SUBARCH := $(shell uname -m | sed -e s/i.86/i386/ -e s/sun4u/sparc64/ \
 
 ARCH = arm
 MACH = at91
-CROSS_COMPILE = arm-linux-
+CROSS_COMPILE = /opt/lemonix/cdt/bin/arm-linux-
 
 # Architecture as present in compile.h
 UTS_MACHINE := $(ARCH)
